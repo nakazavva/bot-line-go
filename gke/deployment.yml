@@ -1,0 +1,41 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: bot-line
+  labels:
+    app: bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bot
+  template:
+    metadata:
+      labels:
+        app: bot
+    spec:
+      containers:
+      - name: bot
+        image: gcr.io/civil-honor-183803/go-bot-line
+        imagePullPolicy: Always
+        env:
+        - name: PORT
+          value: "80"
+        - name: CHANNEL_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: line
+              key: .channel_secret
+        - name: CHANNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: line
+              key: .channel_token
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
